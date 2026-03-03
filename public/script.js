@@ -250,3 +250,40 @@ document.addEventListener('keyup', (e) => {
 window.moveCursor = moveCursor;
 window.toggleDrawing = toggleDrawing;
 window.startRepeat = startRepeat;
+
+// Viewport panning via touch/drag on the canvas
+let isPanning = false;
+let panStartX = 0;
+let panStartY = 0;
+let panOriginCol = 0;
+let panOriginRow = 0;
+let panDisabledDrawing = false;
+
+canvas.style.touchAction = 'none';
+
+canvas.addEventListener('pointerdown', (e) => {
+  isPanning = true;
+  panDisabledDrawing = false;
+  panStartX = e.clientX;
+  panStartY = e.clientY;
+  panOriginCol = viewportCol;
+  panOriginRow = viewportRow;
+  canvas.setPointerCapture(e.pointerId);
+});
+
+canvas.addEventListener('pointermove', (e) => {
+  if (!isPanning) return;
+  const dx = e.clientX - panStartX;
+  const dy = e.clientY - panStartY;
+  if (!panDisabledDrawing && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+    panDisabledDrawing = true;
+    if (isDrawing) toggleDrawing();
+  }
+  const rect = canvas.getBoundingClientRect();
+  viewportCol = Math.max(0, Math.min(COLS - VIEWPORT_COLS, Math.round(panOriginCol - dx * VIEWPORT_COLS / rect.width)));
+  viewportRow = Math.max(0, Math.min(ROWS - VIEWPORT_ROWS, Math.round(panOriginRow - dy * VIEWPORT_ROWS / rect.height)));
+  render();
+});
+
+canvas.addEventListener('pointerup', () => { isPanning = false; });
+canvas.addEventListener('pointercancel', () => { isPanning = false; });
