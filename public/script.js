@@ -1,5 +1,11 @@
+import bgSrc from './assets/bg.png';
+
+document.getElementById('canvas-bg').style.backgroundImage = `url(${bgSrc})`;
+
 const COLS = 100;
 const ROWS = 100;
+const VIEWPORT_COLS = 75;
+const VIEWPORT_ROWS = 75;
 const BLOCK_SIZE = 10;
 const DRAW_COLOR = '#000000';
 const CURSOR_COLOR = '#FFFFFF';
@@ -9,14 +15,17 @@ let isDrawing = false;
 
 /** @type {HTMLCanvasElement} */
 const canvas = document.getElementById('canvas');
-canvas.width = COLS * BLOCK_SIZE;
-canvas.height = ROWS * BLOCK_SIZE;
+canvas.width = VIEWPORT_COLS * BLOCK_SIZE;
+canvas.height = VIEWPORT_ROWS * BLOCK_SIZE;
 
 /** Row-major flat array: grid[row * COLS + col] */
 const grid = new Array(ROWS * COLS).fill(false);
 
 let cursorCol = Math.floor(COLS / 2);
 let cursorRow = Math.floor(ROWS / 2);
+
+let viewportCol = Math.floor((COLS - VIEWPORT_COLS) / 2);
+let viewportRow = Math.floor((ROWS - VIEWPORT_ROWS) / 2);
 
 /** @type {HTMLImageElement | null} */
 let bgImage = null;
@@ -32,17 +41,26 @@ function render() {
   if (!canvas || !bgImage) return;
   const ctx = canvas.getContext('2d');
 
-  // 1. Background
-  ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+  // 1. Background (slice the viewport portion from the full image)
+  const fullW = COLS * BLOCK_SIZE;
+  const fullH = ROWS * BLOCK_SIZE;
+  ctx.drawImage(
+    bgImage,
+    (viewportCol / COLS) * bgImage.naturalWidth,
+    (viewportRow / ROWS) * bgImage.naturalHeight,
+    (VIEWPORT_COLS / COLS) * bgImage.naturalWidth,
+    (VIEWPORT_ROWS / ROWS) * bgImage.naturalHeight,
+    0, 0, canvas.width, canvas.height,
+  );
 
   // 2. Painted blocks
   ctx.fillStyle = DRAW_COLOR;
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
+  for (let row = viewportRow; row < viewportRow + VIEWPORT_ROWS; row++) {
+    for (let col = viewportCol; col < viewportCol + VIEWPORT_COLS; col++) {
       if (grid[row * COLS + col]) {
         ctx.fillRect(
-          col * BLOCK_SIZE,
-          row * BLOCK_SIZE,
+          (col - viewportCol) * BLOCK_SIZE,
+          (row - viewportRow) * BLOCK_SIZE,
           BLOCK_SIZE,
           BLOCK_SIZE,
         );
@@ -51,20 +69,33 @@ function render() {
   }
 
   // 3. Cursor (2px inset border)
+  const screenCol = cursorCol - viewportCol;
+  const screenRow = cursorRow - viewportRow;
   ctx.strokeStyle = CURSOR_COLOR;
   ctx.lineWidth = CURSOR_LINE_WIDTH;
   ctx.strokeRect(
-    cursorCol * BLOCK_SIZE + CURSOR_LINE_WIDTH / 2,
-    cursorRow * BLOCK_SIZE + CURSOR_LINE_WIDTH / 2,
+    screenCol * BLOCK_SIZE + CURSOR_LINE_WIDTH / 2,
+    screenRow * BLOCK_SIZE + CURSOR_LINE_WIDTH / 2,
     BLOCK_SIZE - CURSOR_LINE_WIDTH,
     BLOCK_SIZE - CURSOR_LINE_WIDTH,
   );
+}
+
+function updateViewport() {
+  if (cursorCol < viewportCol) viewportCol = cursorCol;
+  if (cursorCol >= viewportCol + VIEWPORT_COLS) viewportCol = cursorCol - VIEWPORT_COLS + 1;
+  if (cursorRow < viewportRow) viewportRow = cursorRow;
+  if (cursorRow >= viewportRow + VIEWPORT_ROWS) viewportRow = cursorRow - VIEWPORT_ROWS + 1;
+
+  viewportCol = Math.max(0, Math.min(COLS - VIEWPORT_COLS, viewportCol));
+  viewportRow = Math.max(0, Math.min(ROWS - VIEWPORT_ROWS, viewportRow));
 }
 
 function moveCursor(dCol, dRow) {
   cursorCol = Math.max(0, Math.min(COLS - 1, cursorCol + dCol));
   cursorRow = Math.max(0, Math.min(ROWS - 1, cursorRow + dRow));
   if (isDrawing) grid[cursorRow * COLS + cursorCol] = true;
+  updateViewport();
   render();
 }
 
