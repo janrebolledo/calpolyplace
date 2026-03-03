@@ -9,6 +9,7 @@
   },
   "private": true,
   "dependencies": {
-    "tailwindcss": "^4.2.1"
+    "tailwindcss": "^4.2.1",
+    "web-haptics": "^0.0.6"
   }
 }

@@ -5,9 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>cal poly place</title>
     <link rel="stylesheet" href="tailwindcss" />
-    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="./favicon-16x16.png"
+    />
     <link rel="manifest" href="./site.webmanifest" />
   </head>
   <body class="bg-[#B8121E]">
@@ -17,18 +31,44 @@
       class="fixed top-4 right-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
       aria-label="Information"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
+      </svg>
     </button>
 
     <!-- Info dialog -->
     <dialog
       id="info-dialog"
-      class="backdrop:bg-black/40 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-4xl bg-white p-6 shadow-xl w-80 max-w-[calc(100vw-2rem)]"
-      onclick="if(event.target===this)this.close()"
+      class="backdrop:bg-black/40 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-4xl bg-white p-6 shadow-xl w-96 max-w-[calc(100vw-2rem)]"
+      onclick="if (event.target === this) this.close();"
     >
       <div class="flex flex-col gap-4 text-black">
-        <p>made with &lt;3 &amp; claude code by <a href="https://janrebolledo.com" target="_blank" rel="noopener noreferrer" class="font-bold underline">jan rebolledo</a></p>
-        <p>everything is hosted locally, no personal information is stored :)</p>
+        <p>
+          made with &lt;3 &amp; claude code by
+          <a
+            href="https://janrebolledo.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="font-bold underline"
+            >jan rebolledo</a
+          >
+        </p>
+        <p>
+          canvas state is shared on a server. no personal information is stored :)
+        </p>
+        <p>not affiliated with cal poly pomona.</p>
       </div>
     </dialog>
 

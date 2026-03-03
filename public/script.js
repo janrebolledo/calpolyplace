@@ -1,3 +1,6 @@
+import { WebHaptics, defaultPatterns } from 'web-haptics';
+
+const haptics = new WebHaptics();
 import bgSrc from './assets/bg.png';
 
 document.getElementById('canvas-bg').style.backgroundImage = `url(${bgSrc})`;
@@ -12,6 +15,9 @@ const CURSOR_COLOR = '#FFFFFF';
 const CURSOR_LINE_WIDTH = 2;
 
 let isDrawing = false;
+let ws = null;
+let myId = null;
+const remoteCursors = new Map(); // id -> { color, col, row }
 
 /** @type {HTMLCanvasElement} */
 const canvas = document.getElementById('canvas');
@@ -50,7 +56,10 @@ function render() {
     (viewportRow / ROWS) * bgImage.naturalHeight,
     (VIEWPORT_COLS / COLS) * bgImage.naturalWidth,
     (VIEWPORT_ROWS / ROWS) * bgImage.naturalHeight,
-    0, 0, canvas.width, canvas.height,
+    0,
+    0,
+    canvas.width,
+    canvas.height,
   );
 
   // 2. Painted blocks
@@ -79,13 +88,36 @@ function render() {
     BLOCK_SIZE - CURSOR_LINE_WIDTH,
     BLOCK_SIZE - CURSOR_LINE_WIDTH,
   );
+
+  // 4. Remote cursors (only those within viewport)
+  for (const [, cursor] of remoteCursors) {
+    const rScreenCol = cursor.col - viewportCol;
+    const rScreenRow = cursor.row - viewportRow;
+    if (
+      rScreenCol < 0 ||
+      rScreenCol >= VIEWPORT_COLS ||
+      rScreenRow < 0 ||
+      rScreenRow >= VIEWPORT_ROWS
+    )
+      continue;
+    ctx.strokeStyle = cursor.color;
+    ctx.lineWidth = CURSOR_LINE_WIDTH;
+    ctx.strokeRect(
+      rScreenCol * BLOCK_SIZE + CURSOR_LINE_WIDTH / 2,
+      rScreenRow * BLOCK_SIZE + CURSOR_LINE_WIDTH / 2,
+      BLOCK_SIZE - CURSOR_LINE_WIDTH,
+      BLOCK_SIZE - CURSOR_LINE_WIDTH,
+    );
+  }
 }
 
 function updateViewport() {
   if (cursorCol < viewportCol) viewportCol = cursorCol;
-  if (cursorCol >= viewportCol + VIEWPORT_COLS) viewportCol = cursorCol - VIEWPORT_COLS + 1;
+  if (cursorCol >= viewportCol + VIEWPORT_COLS)
+    viewportCol = cursorCol - VIEWPORT_COLS + 1;
   if (cursorRow < viewportRow) viewportRow = cursorRow;
-  if (cursorRow >= viewportRow + VIEWPORT_ROWS) viewportRow = cursorRow - VIEWPORT_ROWS + 1;
+  if (cursorRow >= viewportRow + VIEWPORT_ROWS)
+    viewportRow = cursorRow - VIEWPORT_ROWS + 1;
 
   viewportCol = Math.max(0, Math.min(COLS - VIEWPORT_COLS, viewportCol));
   viewportRow = Math.max(0, Math.min(ROWS - VIEWPORT_ROWS, viewportRow));
@@ -94,16 +126,54 @@ function updateViewport() {
 function moveCursor(dCol, dRow) {
   cursorCol = Math.max(0, Math.min(COLS - 1, cursorCol + dCol));
   cursorRow = Math.max(0, Math.min(ROWS - 1, cursorRow + dRow));
-  if (isDrawing) grid[cursorRow * COLS + cursorCol] = true;
+  if (isDrawing) {
+    grid[cursorRow * COLS + cursorCol] = true;
+    if (ws && ws.readyState === WebSocket.OPEN)
+      ws.send(
+        JSON.stringify({ type: 'paint', col: cursorCol, row: cursorRow }),
+      );
+  }
+  if (ws && ws.readyState === WebSocket.OPEN)
+    ws.send(JSON.stringify({ type: 'cursor', col: cursorCol, row: cursorRow }));
   updateViewport();
   render();
 }
 
 function toggleDrawing() {
   isDrawing = !isDrawing;
-  document.getElementById('draw-label').textContent = isDrawing ? 'stop drawing' : 'start drawing';
+  document.getElementById('draw-label').textContent = isDrawing
+    ? 'stop drawing'
+    : 'start drawing';
+  haptics.trigger(defaultPatterns.success);
   render();
 }
+
+function connectWS() {
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(`${proto}://${location.host}/ws`);
+  ws.addEventListener('message', (event) => {
+    const msg = JSON.parse(event.data);
+    if (msg.type === 'init') {
+      myId = msg.id;
+      for (let i = 0; i < msg.grid.length; i++) grid[i] = msg.grid[i];
+      render();
+    } else if (msg.type === 'cursor') {
+      remoteCursors.set(msg.id, {
+        color: msg.color,
+        col: msg.col,
+        row: msg.row,
+      });
+      render();
+    } else if (msg.type === 'paint') {
+      grid[msg.row * COLS + msg.col] = true;
+      render();
+    } else if (msg.type === 'leave') {
+      remoteCursors.delete(msg.id);
+      render();
+    }
+  });
+}
+connectWS();
 
 const REPEAT_INITIAL = 250;
 const REPEAT_MIN = REPEAT_INITIAL / 3;
