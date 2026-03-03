@@ -1,3 +1,4 @@
+import.meta.hot.accept;
 import { WebHaptics, defaultPatterns } from 'web-haptics';
 
 const haptics = new WebHaptics();
@@ -203,6 +204,30 @@ function stopRepeat() {
 
 document.addEventListener('pointerup', stopRepeat);
 document.addEventListener('pointercancel', stopRepeat);
+
+const KEY_DIRS = {
+  ArrowUp: [0, -1], w: [0, -1], W: [0, -1],
+  ArrowDown: [0, 1], s: [0, 1], S: [0, 1],
+  ArrowLeft: [-1, 0], a: [-1, 0], A: [-1, 0],
+  ArrowRight: [1, 0], d: [1, 0], D: [1, 0],
+};
+
+document.addEventListener('keydown', (e) => {
+  if (e.repeat) return;
+  if (e.target !== document.body && e.target !== document.documentElement) return;
+  const dir = KEY_DIRS[e.key];
+  if (dir) {
+    e.preventDefault();
+    startRepeat(e, dir[0], dir[1]);
+  } else if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    toggleDrawing();
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  if (KEY_DIRS[e.key]) stopRepeat();
+});
 
 window.moveCursor = moveCursor;
 window.toggleDrawing = toggleDrawing;
