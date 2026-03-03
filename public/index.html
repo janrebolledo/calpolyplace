@@ -6,8 +6,8 @@
     <title>cal poly place</title>
     <link rel="stylesheet" href="tailwindcss" />
   </head>
-  <body>
-    <main class="min-h-screen bg-[#B8121E] text-white">
+  <body class="bg-[#B8121E]">
+    <main class="min-h-svh max-h-svh overflow-hidden text-white">
       <div class="mx-auto max-w-md px-4">
         <header class="flex justify-center p-12">
           <img
@@ -37,31 +37,31 @@
           </div>
         </section>
 
-        <section class="flex justify-center gap-12 p-12">
+        <section class="flex justify-center gap-12 p-8">
           <div class="flex flex-col items-center gap-4">
             <div class="relative">
               <div
-                class="absolute top-0 left-0 grid h-full w-full grid-cols-3 grid-rows-3 items-center justify-center"
+                class="absolute top-0 left-0 grid h-full w-full grid-cols-3 grid-rows-3 items-center justify-center select-none touch-none"
               >
                 <!-- up -->
                 <button
                   class="col-start-2 h-10 w-10 rounded-xl"
-                  onclick="moveCursor(0, -1)"
+                  onpointerdown="startRepeat(event, 0, -1)"
                 ></button>
                 <!-- left -->
                 <button
                   class="col-start-1 row-start-2 h-10 w-10 rounded-xl"
-                  onclick="moveCursor(-1, 0)"
+                  onpointerdown="startRepeat(event, -1, 0)"
                 ></button>
                 <!-- right -->
                 <button
                   class="col-start-3 row-start-2 h-10 w-10 rounded-xl"
-                  onclick="moveCursor(1, 0)"
+                  onpointerdown="startRepeat(event, 1, 0)"
                 ></button>
                 <!-- down -->
                 <button
                   class="col-start-2 row-start-3 h-10 w-10 rounded-xl"
-                  onclick="moveCursor(0, 1)"
+                  onpointerdown="startRepeat(event, 0, 1)"
                 ></button>
               </div>
               <img src="assets/dpad.svg" alt="DPAD" class="w-30" />
@@ -73,7 +73,7 @@
             <button onclick="toggleDrawing()">
               <img src="assets/button.svg" alt="Button" class="w-10" />
             </button>
-            <p class="text-white/50">start</p>
+            <p id="draw-label" class="text-white/50">start drawing</p>
           </div>
         </section>
       </div>

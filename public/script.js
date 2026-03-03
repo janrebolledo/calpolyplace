@@ -101,8 +101,39 @@ function moveCursor(dCol, dRow) {
 
 function toggleDrawing() {
   isDrawing = !isDrawing;
+  document.getElementById('draw-label').textContent = isDrawing ? 'stop drawing' : 'start drawing';
   render();
 }
 
+const REPEAT_INITIAL = 250;
+const REPEAT_MIN = REPEAT_INITIAL / 3;
+const REPEAT_DECAY = 0.88;
+
+let repeatTimer = null;
+
+function startRepeat(e, dCol, dRow) {
+  e.preventDefault();
+  stopRepeat();
+  moveCursor(dCol, dRow);
+  let interval = REPEAT_INITIAL;
+  function schedule() {
+    repeatTimer = setTimeout(() => {
+      moveCursor(dCol, dRow);
+      interval = Math.max(REPEAT_MIN, interval * REPEAT_DECAY);
+      schedule();
+    }, interval);
+  }
+  schedule();
+}
+
+function stopRepeat() {
+  clearTimeout(repeatTimer);
+  repeatTimer = null;
+}
+
+document.addEventListener('pointerup', stopRepeat);
+document.addEventListener('pointercancel', stopRepeat);
+
 window.moveCursor = moveCursor;
 window.toggleDrawing = toggleDrawing;
+window.startRepeat = startRepeat;
