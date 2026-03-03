@@ -9,6 +9,26 @@ const grid = new Array(ROWS * COLS).fill(false);
 const clients = new Map(); // id -> { ws, color, col, row }
 let colorIndex = 0;
 
+function nextResetTime() {
+  const next = new Date();
+  next.setMinutes(0, 0, 0);
+  next.setHours(next.getHours() + 1);
+  return next.getTime();
+}
+
+let resetAt = nextResetTime();
+
+function scheduleReset() {
+  setTimeout(() => {
+    grid.fill(false);
+    resetAt = nextResetTime();
+    const json = JSON.stringify({ type: 'reset', resetAt });
+    for (const [, client] of clients) client.ws.send(json);
+    scheduleReset();
+  }, resetAt - Date.now());
+}
+scheduleReset();
+
 function broadcast(senderId, msg) {
   const json = JSON.stringify(msg);
   for (const [id, client] of clients) {
@@ -33,7 +53,7 @@ serve({
     open(ws) {
       const { id, color } = ws.data;
       clients.set(id, { ws, color, col: 50, row: 50 });
-      ws.send(JSON.stringify({ type: 'init', id, color, grid }));
+      ws.send(JSON.stringify({ type: 'init', id, color, grid, resetAt }));
     },
     message(ws, raw) {
       const { id, color } = ws.data;

@@ -73,9 +73,13 @@
       </div>
     </dialog>
 
-    <main class="min-h-svh max-h-svh overflow-hidden text-white">
-      <div class="mx-auto max-w-md px-4">
-        <header class="flex justify-center p-12">
+    <main
+      class="min-h-svh max-h-svh overflow-hidden text-white flex items-center"
+    >
+      <div
+        class="mx-auto h-full max-w-md px-4 flex flex-col items-stretch justify-between"
+      >
+        <header class="flex justify-center p-4 md:p-12">
           <img
             src="assets/calpolyplace.png"
             alt="Cal Poly Place"
@@ -83,6 +87,9 @@
           />
         </header>
 
+        <small class="w-full text-center text-white/50 pb-4"
+          >canvas resets in <span id="countdown">--:--</span></small
+        >
         <section
           class="flex w-full items-center justify-center rounded-4xl bg-radial from-[#B01116] to-[#A60B14] p-2"
         >

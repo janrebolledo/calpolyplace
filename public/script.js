@@ -19,6 +19,18 @@ let isDrawing = false;
 let ws = null;
 let myId = null;
 const remoteCursors = new Map(); // id -> { color, col, row }
+let resetAt = null;
+
+const countdown = document.getElementById('countdown');
+
+function updateCountdown() {
+  if (!resetAt) return;
+  const secs = Math.max(0, Math.round((resetAt - Date.now()) / 1000));
+  const m = String(Math.floor(secs / 60)).padStart(2, '0');
+  const s = String(secs % 60).padStart(2, '0');
+  countdown.textContent = `${m}:${s}`;
+}
+setInterval(updateCountdown, 1000);
 
 /** @type {HTMLCanvasElement} */
 const canvas = document.getElementById('canvas');
@@ -156,6 +168,8 @@ function connectWS() {
     const msg = JSON.parse(event.data);
     if (msg.type === 'init') {
       myId = msg.id;
+      resetAt = msg.resetAt;
+      updateCountdown();
       for (let i = 0; i < msg.grid.length; i++) grid[i] = msg.grid[i];
       render();
     } else if (msg.type === 'cursor') {
@@ -167,6 +181,10 @@ function connectWS() {
       render();
     } else if (msg.type === 'paint') {
       grid[msg.row * COLS + msg.col] = true;
+      render();
+    } else if (msg.type === 'reset') {
+      resetAt = msg.resetAt;
+      grid.fill(false);
       render();
     } else if (msg.type === 'leave') {
       remoteCursors.delete(msg.id);
