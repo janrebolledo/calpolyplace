@@ -1,6 +1,7 @@
 import { serve } from 'bun';
 import { trackPageVisit, trackSessionOpen, trackSessionClose, trackPaint, trackCanvasReset, getStats } from './analytics.js';
 import index from './public/index.html';
+import dashboard from './public/dashboard.html';
 import tailwind from 'bun-plugin-tailwind';
 
 const COLS = 100;
@@ -44,6 +45,7 @@ serve({
   plugins: [tailwind],
   routes: {
     '/': index,
+    '/dashboard': dashboard,
     '/stats': () => Response.json(getStats()),
   },
   fetch(req, server) {

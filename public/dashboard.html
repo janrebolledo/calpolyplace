@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #ffffff;
+      --surface: #f4f4f4;
+      --border:  #e5e5e5;
+      --border2: #ddd;
+      --text:    #0f0f0f;
+      --muted:   #999;
+      --dim:     #bbb;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px 32px 48px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 22px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .logo-sub {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 16px; }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .live-dot {
+      width: 6px; height: 6px;
+      background: #0f0f0f;
+      border-radius: 50%;
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.25; }
+    }
+
+    #last-updated { font-size: 11px; color: var(--muted); }
+
+    .btn {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn:hover { border-color: var(--text); color: var(--text); }
+
+    /* ── HERO STAT CARDS ── */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-radius: 1.5rem;
+      margin-bottom: 16px;
+      overflow: hidden;
+      gap: 2px;
+      background: var(--border);
+    }
+
+    .stat-hero {
+      padding: 26px 22px 20px;
+      background: var(--surface);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .stat-val {
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 8px;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+    }
+
+    .stat-sub { font-size: 11px; color: var(--muted); }
+
+    /* ── PANELS ── */
+    .panel {
+      background: var(--surface);
+      border-radius: 1.5rem;
+      padding: 22px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .panel-head::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .panel-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .panel-note { font-size: 11px; color: var(--dim); white-space: nowrap; }
+
+    /* ── LAYOUT ── */
+    .row { display: grid; gap: 12px; margin-bottom: 12px; }
+    .col-1  { grid-template-columns: 1fr; }
+    .col-2  { grid-template-columns: 1fr 1fr; }
+    .col-3  { grid-template-columns: 2fr 1fr 1fr; }
+    .col-2a { grid-template-columns: 3fr 2fr; }
+
+    /* ── TIMELINE ── */
+    .timeline-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 1px;
+      height: 80px;
+      overflow: hidden;
+      border-radius: 6px;
+    }
+
+    .t-bar {
+      flex: 1;
+      min-width: 1px;
+      background: #0f0f0f;
+      opacity: 0.2;
+      transition: opacity 0.1s;
+      cursor: default;
+    }
+    .t-bar:hover  { opacity: 0.7; }
+    .t-bar.current { opacity: 0.9; }
+
+    .timeline-foot {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ── HOUR HEATMAP ── */
+    .hour-grid {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 3px;
+      margin-bottom: 6px;
+    }
+
+    .hour-cell {
+      aspect-ratio: 1;
+      background: #0f0f0f;
+      border-radius: 2px;
+      cursor: default;
+    }
+
+    .hour-labels {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .hour-labels span:not(:first-child) { text-align: center; }
+    .hour-labels span:last-child        { text-align: right; }
+
+    /* ── BAR CHART ── */
+    .bar-chart { display: flex; flex-direction: column; gap: 9px; }
+
+    .bar-row { display: flex; align-items: center; gap: 10px; }
+
+    .bar-label {
+      width: 90px;
+      font-size: 12px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 10px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .bar-fill { height: 100%; background: #0f0f0f; border-radius: 99px; }
+
+    .bar-count {
+      width: 46px;
+      text-align: right;
+      font-size: 12px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    /* ── CYCLE TABLE ── */
+    .cycle-table { width: 100%; border-collapse: collapse; }
+
+    .cycle-table th {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: left;
+      padding: 0 8px 10px 0;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .cycle-table td {
+      padding: 6px 8px 6px 0;
+      font-size: 12px;
+      color: var(--text);
+      border-top: 1px solid var(--border);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cycle-table tr:hover td { color: #fff; }
+
+    /* ── CURRENT CYCLE ── */
+    .cur-cycle { display: flex; flex-direction: column; gap: 14px; }
+
+    .cur-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    .cur-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+    .cur-name { font-size: 12px; color: var(--muted); }
+    .cur-val  { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+    /* ── REFERRERS ── */
+    .ref-list { display: flex; flex-direction: column; gap: 9px; }
+
+    .ref-row  { display: flex; align-items: center; gap: 8px; }
+    .ref-n    { width: 18px; font-size: 11px; color: var(--dim); flex-shrink: 0; text-align: right; }
+    .ref-name { flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .ref-track { width: 70px; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; flex-shrink: 0; }
+    .ref-fill  { height: 100%; background: #0f0f0f; border-radius: 99px; }
+    .ref-count { width: 36px; text-align: right; font-size: 11px; color: var(--muted); flex-shrink: 0; }
+
+    /* ── FUN STATS ── */
+    .fun-list { display: flex; flex-direction: column; gap: 20px; }
+
+    .fun-item-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 3px;
+    }
+    .fun-item-val  { font-size: 34px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+    .fun-item-desc { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    /* ── MISC ── */
+    .empty { font-size: 12px; color: var(--muted); }
+
+    ::-webkit-scrollbar       { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+    @media (max-width: 1100px) {
+      .col-3 { grid-template-columns: 1fr 1fr; }
+      .hero-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 720px) {
+      .page { padding: 16px 16px 40px; }
+      .col-2, .col-2a, .col-3 { grid-template-columns: 1fr; }
+      .stat-val { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header>
+    <div>
+      <div class="logo-title">calpoly.place</div>
+      <div class="logo-sub">Analytics Dashboard</div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><div class="live-dot"></div>Live</div>
+      <div id="last-updated">—</div>
+      <button class="btn" onclick="loadData()">↻ Refresh</button>
+    </div>
+  </header>
+
+  <!-- HERO STATS -->
+  <div class="hero-grid">
+    <div class="stat-hero">
+      <div class="stat-label">Total Visits</div>
+      <div class="stat-val" id="h-visits">—</div>
+      <div class="stat-sub" id="h-sessions-sub">—</div>
+    </div>
+    <div class="stat-hero">
+      <div class="stat-label">Blocks Drawn</div>
+      <div class="stat-val" id="h-blocks">—</div>
+      <div class="stat-sub">all time</div>
+    </div>
+    <div class="stat-hero">
+      <div class="stat-label">Total Painters</div>
+      <div class="stat-val" id="h-painters">—</div>
+      <div class="stat-sub" id="h-conv-sub">—</div>
+    </div>
+    <div class="stat-hero">
+      <div class="stat-label">Peak Concurrent</div>
+      <div class="stat-val" id="h-peak">—</div>
+      <div class="stat-sub">all-time record</div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="row col-1">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Visit Timeline</div>
+        <span class="panel-note">last 7 days · hourly</span>
+      </div>
+      <div id="timeline-bars" class="timeline-bars"></div>
+      <div class="timeline-foot">
+        <span id="tl-left">7 days ago</span>
+        <span id="tl-right">now</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CYCLE HISTORY + CURRENT CYCLE -->
+  <div class="row col-2a">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Cycle History</div>
+        <span class="panel-note">last 10 hourly resets</span>
+      </div>
+      <div id="cycle-history"><span class="empty">Loading…</span></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Current Cycle</div></div>
+      <div id="current-cycle"><span class="empty">Loading…</span></div>
+    </div>
+  </div>
+
+  <!-- HOUR HEATMAP + REFERRERS -->
+  <div class="row col-2">
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Traffic by Hour of Day</div></div>
+      <div id="hour-heatmap"><span class="empty">Loading…</span></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Top Referrers</div></div>
+      <div id="referrers"><span class="empty">Loading…</span></div>
+    </div>
+  </div>
+
+  <!-- BROWSERS + OS + FUN -->
+  <div class="row col-3">
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Browsers</div></div>
+      <div id="browsers"><span class="empty">Loading…</span></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Operating Systems</div></div>
+      <div id="os-chart"><span class="empty">Loading…</span></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Fun Stats</div></div>
+      <div id="fun-stats"><span class="empty">Loading…</span></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function fmt(n) {
+    return (n == null || isNaN(n)) ? '—' : Number(n).toLocaleString();
+  }
+
+  function fmtMs(ms) {
+    if (!ms) return '—';
+    const s = Math.floor(ms / 1000);
+    if (s < 60) return s + 's';
+    const m = Math.floor(s / 60), sec = s % 60;
+    if (m < 60) return m + 'm ' + (sec ? sec + 's' : '');
+    const h = Math.floor(m / 60), min = m % 60;
+    return h + 'h ' + (min ? min + 'm' : '');
+  }
+
+  function countUp(el, target) {
+    const dur = 900, t0 = performance.now();
+    (function tick(now) {
+      const p = Math.min((now - t0) / dur, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(e * target).toLocaleString();
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  function renderTimeline(perHour) {
+    const wrap = document.getElementById('timeline-bars');
+    wrap.innerHTML = '';
+    if (!perHour?.length) { wrap.innerHTML = '<span class="empty">No data</span>'; return; }
+
+    const max = Math.max(...perHour.map(h => h.count), 1);
+    const nowBucket = Date.now() - (Date.now() % 3_600_000);
+
+    perHour.forEach(({ hour_bucket, count }) => {
+      const bar = document.createElement('div');
+      bar.className = 't-bar' + (hour_bucket >= nowBucket - 3_600_000 ? ' current' : '');
+      bar.style.height = Math.max((count / max) * 80, count > 0 ? 3 : 1) + 'px';
+      bar.title = new Date(hour_bucket).toLocaleString('en-US', {
+        month: 'short', day: 'numeric', hour: '2-digit'
+      }) + ' · ' + count + ' visits';
+      wrap.appendChild(bar);
+    });
+
+    if (perHour.length) {
+      document.getElementById('tl-left').textContent =
+        new Date(perHour[0].hour_bucket).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+  }
+
+  function renderHeatmap(byHour) {
+    const wrap = document.getElementById('hour-heatmap');
+    if (!byHour?.length) { wrap.innerHTML = '<span class="empty">No data</span>'; return; }
+
+    const max = Math.max(...byHour.map(h => h.count), 1);
+    const grid = document.createElement('div');
+    grid.className = 'hour-grid';
+
+    for (let h = 0; h < 24; h++) {
+      const entry = byHour.find(x => x.hour === h) || { count: 0 };
+      const op = entry.count > 0 ? Math.max(entry.count / max, 0.08) : 0.04;
+      const cell = document.createElement('div');
+      cell.className = 'hour-cell';
+      cell.style.opacity = op;
+      cell.title = `${h}:00 — ${entry.count} visit${entry.count !== 1 ? 's' : ''}`;
+      grid.appendChild(cell);
+    }
+
+    const labels = document.createElement('div');
+    labels.className = 'hour-labels';
+    labels.innerHTML = '<span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span>';
+
+    wrap.innerHTML = '';
+    wrap.appendChild(grid);
+    wrap.appendChild(labels);
+  }
+
+  function renderBars(el, data, labelKey, countKey) {
+    if (!data?.length) { el.innerHTML = '<span class="empty">No data</span>'; return; }
+    const max = Math.max(...data.map(d => d[countKey]), 1);
+    const chart = document.createElement('div');
+    chart.className = 'bar-chart';
+
+    data.forEach(item => {
+      const pct = (item[countKey] / max) * 100;
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+
+      const lbl = document.createElement('div');
+      lbl.className = 'bar-label';
+      lbl.textContent = item[labelKey] || 'Direct';
+      lbl.title = item[labelKey] || 'Direct';
+
+      const track = document.createElement('div');
+      track.className = 'bar-track';
+      const fill = document.createElement('div');
+      fill.className = 'bar-fill';
+      fill.style.width = pct + '%';
+      track.appendChild(fill);
+
+      const cnt = document.createElement('div');
+      cnt.className = 'bar-count';
+      cnt.textContent = fmt(item[countKey]);
+
+      row.append(lbl, track, cnt);
+      chart.appendChild(row);
+    });
+
+    el.innerHTML = '';
+    el.appendChild(chart);
+  }
+
+  function renderReferrers(refs) {
+    const wrap = document.getElementById('referrers');
+    if (!refs?.length) { wrap.innerHTML = '<span class="empty">No referrers yet</span>'; return; }
+
+    const top = refs.slice(0, 12);
+    const max = Math.max(...top.map(r => r.count), 1);
+    const list = document.createElement('div');
+    list.className = 'ref-list';
+
+    top.forEach((r, i) => {
+      const pct = (r.count / max) * 100;
+      const row = document.createElement('div');
+      row.className = 'ref-row';
+
+      const n  = document.createElement('div'); n.className = 'ref-n'; n.textContent = i + 1;
+      const nm = document.createElement('div'); nm.className = 'ref-name'; nm.textContent = r.referrer; nm.title = r.referrer;
+      const tr = document.createElement('div'); tr.className = 'ref-track';
+      const fi = document.createElement('div'); fi.className = 'ref-fill'; fi.style.width = pct + '%';
+      tr.appendChild(fi);
+      const ct = document.createElement('div'); ct.className = 'ref-count'; ct.textContent = fmt(r.count);
+
+      row.append(n, nm, tr, ct);
+      list.appendChild(row);
+    });
+
+    wrap.innerHTML = '';
+    wrap.appendChild(list);
+  }
+
+  function renderCurrentCycle(c) {
+    const wrap = document.getElementById('current-cycle');
+    if (!c) { wrap.innerHTML = '<span class="empty">No data</span>'; return; }
+    wrap.innerHTML = `
+      <div class="cur-cycle">
+        <div class="cur-row">
+          <span class="cur-name">Blocks drawn</span>
+          <span class="cur-val">${fmt(c.blocks_drawn)}</span>
+        </div>
+        <div class="cur-row">
+          <span class="cur-name">Unique painters</span>
+          <span class="cur-val">${fmt(c.unique_painters)}</span>
+        </div>
+        <div class="cur-row">
+          <span class="cur-name">Peak players</span>
+          <span class="cur-val">${fmt(c.peak_players)}</span>
+        </div>
+      </div>`;
+  }
+
+  function renderCycleHistory(cycles) {
+    const wrap = document.getElementById('cycle-history');
+    if (!cycles?.length) { wrap.innerHTML = '<span class="empty">No history yet</span>'; return; }
+
+    const table = document.createElement('table');
+    table.className = 'cycle-table';
+    table.innerHTML = `
+      <thead><tr>
+        <th>Started</th><th>Duration</th><th>Blocks</th><th>Painters</th><th>Peak</th>
+      </tr></thead>
+      <tbody>${cycles.map(c => {
+        const dur = c.ended_at ? fmtMs(c.ended_at - c.started_at) : '—';
+        const started = new Date(c.started_at).toLocaleString('en-US', {
+          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        return `<tr>
+          <td>${started}</td><td>${dur}</td><td>${fmt(c.blocks_drawn)}</td>
+          <td>${fmt(c.unique_painters)}</td><td>${fmt(c.peak_players)}</td>
+        </tr>`;
+      }).join('')}</tbody>`;
+
+    wrap.innerHTML = '';
+    wrap.appendChild(table);
+  }
+
+  function renderFun(fun, sessions) {
+    document.getElementById('fun-stats').innerHTML = `
+      <div class="fun-list">
+        <div class="fun-item">
+          <div class="fun-item-label">Conversion rate</div>
+          <div class="fun-item-val">${fun.painter_conversion_rate != null ? fun.painter_conversion_rate.toFixed(1) + '%' : '—'}</div>
+          <div class="fun-item-desc">visitors who painted</div>
+        </div>
+        <div class="fun-item">
+          <div class="fun-item-label">Blocks / painter</div>
+          <div class="fun-item-val">${fun.avg_blocks_per_painter != null ? Math.round(fun.avg_blocks_per_painter).toLocaleString() : '—'}</div>
+          <div class="fun-item-desc">average per user</div>
+        </div>
+        <div class="fun-item">
+          <div class="fun-item-label">Avg session</div>
+          <div class="fun-item-val">${fmtMs(sessions?.avg_duration_ms)}</div>
+          <div class="fun-item-desc">time on site</div>
+        </div>
+      </div>`;
+  }
+
+  async function loadData() {
+    try {
+      const res = await fetch('/stats');
+      if (!res.ok) throw new Error(res.status);
+      const d = await res.json();
+
+      countUp(document.getElementById('h-visits'),   d.visits.total);
+      countUp(document.getElementById('h-blocks'),   d.canvas.total_blocks_drawn);
+      countUp(document.getElementById('h-painters'), d.canvas.total_painters);
+      countUp(document.getElementById('h-peak'),     d.canvas.max_concurrent_players);
+
+      document.getElementById('h-sessions-sub').textContent = fmt(d.sessions.total) + ' sessions';
+      document.getElementById('h-conv-sub').textContent = (d.fun.painter_conversion_rate ?? 0).toFixed(1) + '% conversion';
+
+      renderTimeline(d.visits.per_hour);
+      renderHeatmap(d.fun.visits_by_hour_of_day);
+      renderReferrers(d.visits.referrers);
+      renderCurrentCycle(d.canvas.current_cycle);
+      renderCycleHistory(d.canvas.recent_cycles);
+      renderBars(document.getElementById('browsers'), d.visits.browsers, 'browser', 'count');
+      renderBars(document.getElementById('os-chart'), d.visits.os, 'os', 'count');
+      renderFun(d.fun, d.sessions);
+
+      document.getElementById('last-updated').textContent =
+        'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    } catch (err) {
+      console.error('Stats fetch failed:', err);
+      document.getElementById('last-updated').textContent = 'Failed to load';
+    }
+  }
+
+  loadData();
+  setInterval(loadData, 60_000);
+</script>
+</body>
+</html>
