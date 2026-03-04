@@ -1,0 +1,10 @@
+node_modules
+Dockerfile*
+.dockerignore
+.git
+.gitignore
+README.md
+LICENSE
+.vscode
+.env
+# Any other files or directories you want to exclude

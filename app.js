@@ -37,6 +37,7 @@ function broadcast(senderId, msg) {
 }
 
 serve({
+  port: process.env.PORT || 3000,
   routes: { '/': index },
   fetch(req, server) {
     const url = new URL(req.url);
