@@ -1,5 +1,7 @@
 import { serve } from 'bun';
+import { trackPageVisit, trackSessionOpen, trackSessionClose, trackPaint, trackCanvasReset, getStats } from './analytics.js';
 import index from './public/index.html';
+import tailwind from 'bun-plugin-tailwind';
 
 const COLS = 100;
 const ROWS = 100;
@@ -21,6 +23,7 @@ let resetAt = nextResetTime();
 function scheduleReset() {
   setTimeout(() => {
     grid.fill(false);
+    trackCanvasReset();
     resetAt = nextResetTime();
     const json = JSON.stringify({ type: 'reset', resetAt });
     for (const [, client] of clients) client.ws.send(json);
@@ -38,12 +41,17 @@ function broadcast(senderId, msg) {
 
 serve({
   port: process.env.PORT || 3000,
-  routes: { '/': index },
+  plugins: [tailwind],
+  routes: {
+    '/': index,
+    '/stats': () => Response.json(getStats()),
+  },
   fetch(req, server) {
     const url = new URL(req.url);
     if (url.pathname === '/ws') {
       const id = crypto.randomUUID();
       const color = COLORS[colorIndex++ % COLORS.length];
+      trackPageVisit(req);
       const upgraded = server.upgrade(req, { data: { id, color } });
       if (upgraded) return;
       return new Response('WebSocket upgrade failed', { status: 400 });
@@ -55,6 +63,7 @@ serve({
       const { id, color } = ws.data;
       clients.set(id, { ws, color, col: 50, row: 50 });
       ws.send(JSON.stringify({ type: 'init', id, color, grid, resetAt }));
+      trackSessionOpen(id, clients.size);
     },
     message(ws, raw) {
       const { id, color } = ws.data;
@@ -66,12 +75,14 @@ serve({
       } else if (msg.type === 'paint') {
         grid[msg.row * COLS + msg.col] = true;
         broadcast(id, { type: 'paint', col: msg.col, row: msg.row });
+        trackPaint(id);
       }
     },
     close(ws) {
       const { id } = ws.data;
       clients.delete(id);
       broadcast(id, { type: 'leave', id });
+      trackSessionClose(id);
     },
   },
 });
