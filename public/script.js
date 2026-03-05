@@ -209,8 +209,8 @@ let pressedButton = null;
 
 function setPressedButton(el) {
   if (pressedButton === el) return;
-  if (pressedButton) pressedButton.classList.remove('pressed');
-  pressedButton = el || null;
+  if (pressedButton) pressedButton.classList?.remove('pressed');
+  pressedButton = el?.classList ? el : null;
   if (pressedButton) pressedButton.classList.add('pressed');
 }
 
