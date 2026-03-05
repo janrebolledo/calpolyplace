@@ -158,6 +158,11 @@ function toggleDrawing() {
     ? 'stop drawing'
     : 'start drawing';
   haptics.trigger(defaultPatterns.success);
+  if (isDrawing) {
+    grid[cursorRow * COLS + cursorCol] = true;
+    if (ws && ws.readyState === WebSocket.OPEN)
+      ws.send(JSON.stringify({ type: 'paint', col: cursorCol, row: cursorRow }));
+  }
   render();
 }
 
