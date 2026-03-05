@@ -199,20 +199,28 @@ const REPEAT_MIN = REPEAT_INITIAL / 3;
 const REPEAT_DECAY = 0.88;
 
 let repeatTimer = null;
+let currentDir = { dCol: 0, dRow: 0 };
 
 function startRepeat(e, dCol, dRow) {
   e.preventDefault();
   stopRepeat();
+  currentDir.dCol = dCol;
+  currentDir.dRow = dRow;
   moveCursor(dCol, dRow);
   let interval = REPEAT_INITIAL;
   function schedule() {
     repeatTimer = setTimeout(() => {
-      moveCursor(dCol, dRow);
+      moveCursor(currentDir.dCol, currentDir.dRow);
       interval = Math.max(REPEAT_MIN, interval * REPEAT_DECAY);
       schedule();
     }, interval);
   }
   schedule();
+}
+
+function updateRepeatDir(dCol, dRow) {
+  currentDir.dCol = dCol;
+  currentDir.dRow = dRow;
 }
 
 function stopRepeat() {
@@ -250,6 +258,8 @@ document.addEventListener('keyup', (e) => {
 window.moveCursor = moveCursor;
 window.toggleDrawing = toggleDrawing;
 window.startRepeat = startRepeat;
+window.updateRepeatDir = updateRepeatDir;
+window.isRepeating = () => repeatTimer !== null;
 
 // Viewport panning via touch/drag on the canvas
 let isPanning = false;
