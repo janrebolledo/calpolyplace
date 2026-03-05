@@ -200,12 +200,21 @@ const REPEAT_DECAY = 0.88;
 
 let repeatTimer = null;
 let currentDir = { dCol: 0, dRow: 0 };
+let pressedButton = null;
+
+function setPressedButton(el) {
+  if (pressedButton === el) return;
+  if (pressedButton) pressedButton.classList.remove('pressed');
+  pressedButton = el || null;
+  if (pressedButton) pressedButton.classList.add('pressed');
+}
 
 function startRepeat(e, dCol, dRow) {
   e.preventDefault();
   stopRepeat();
   currentDir.dCol = dCol;
   currentDir.dRow = dRow;
+  setPressedButton(e.currentTarget);
   moveCursor(dCol, dRow);
   let interval = REPEAT_INITIAL;
   function schedule() {
@@ -218,14 +227,16 @@ function startRepeat(e, dCol, dRow) {
   schedule();
 }
 
-function updateRepeatDir(dCol, dRow) {
+function updateRepeatDir(dCol, dRow, el) {
   currentDir.dCol = dCol;
   currentDir.dRow = dRow;
+  if (el) setPressedButton(el);
 }
 
 function stopRepeat() {
   clearTimeout(repeatTimer);
   repeatTimer = null;
+  setPressedButton(null);
 }
 
 document.addEventListener('pointerup', stopRepeat);

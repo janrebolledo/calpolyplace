@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>calpoly.place</title>
     <link rel="stylesheet" href="tailwindcss" />
+    <style>
+      #dpad-grid button {
+        background: rgba(0, 0, 0, 0.5);
+        mix-blend-mode: multiply;
+        filter: blur(5px);
+        opacity: 0;
+      }
+      #dpad-grid button.pressed {
+        opacity: 1;
+      }
+    </style>
     <link
       rel="apple-touch-icon"
       sizes="180x180"
@@ -56,7 +67,7 @@
     >
       <div class="flex flex-col gap-4 text-black">
         <p>
-          made with &lt;3 &amp; claude code by
+          made with ♥︎ &amp; claude code by
           <a
             href="https://janrebolledo.com"
             target="_blank"
@@ -69,6 +80,7 @@
           canvas state is shared on a server. no personal information is stored
           :)
         </p>
+        <p>analytics are collected to improve the experience.</p>
         <p>not affiliated with cal poly pomona.</p>
       </div>
     </dialog>
@@ -117,30 +129,34 @@
               <div
                 id="dpad-grid"
                 class="absolute top-0 left-0 grid h-full w-full grid-cols-3 grid-rows-3 items-center justify-center select-none touch-none"
-                onpointermove="(function(e){if(!isRepeating())return;var el=document.elementFromPoint(e.clientX,e.clientY);if(el&&el.dataset.dc!==undefined){updateRepeatDir(+el.dataset.dc,+el.dataset.dr);}})( event)"
+                onpointermove="(function(e){if(!isRepeating())return;var el=document.elementFromPoint(e.clientX,e.clientY);if(el&&el.dataset.dc!==undefined){updateRepeatDir(+el.dataset.dc,+el.dataset.dr,el);}})( event)"
               >
                 <!-- up -->
                 <button
                   class="col-start-2 h-10 w-10 rounded-xl"
-                  data-dc="0" data-dr="-1"
+                  data-dc="0"
+                  data-dr="-1"
                   onpointerdown="startRepeat(event, 0, -1)"
                 ></button>
                 <!-- left -->
                 <button
                   class="col-start-1 row-start-2 h-10 w-10 rounded-xl"
-                  data-dc="-1" data-dr="0"
+                  data-dc="-1"
+                  data-dr="0"
                   onpointerdown="startRepeat(event, -1, 0)"
                 ></button>
                 <!-- right -->
                 <button
                   class="col-start-3 row-start-2 h-10 w-10 rounded-xl"
-                  data-dc="1" data-dr="0"
+                  data-dc="1"
+                  data-dr="0"
                   onpointerdown="startRepeat(event, 1, 0)"
                 ></button>
                 <!-- down -->
                 <button
                   class="col-start-2 row-start-3 h-10 w-10 rounded-xl"
-                  data-dc="0" data-dr="1"
+                  data-dc="0"
+                  data-dr="1"
                   onpointerdown="startRepeat(event, 0, 1)"
                 ></button>
               </div>
