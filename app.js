@@ -4,6 +4,30 @@ import index from './public/index.html';
 import dashboard from './public/dashboard.html';
 import tailwind from 'bun-plugin-tailwind';
 
+// Path prefixes that are never valid for this app
+const BLOCKED_PATH_PREFIXES = [
+  '/.env', '/.git', '/.github', '/.DS_Store',
+  '/wordpress', '/wp-', '/admin', '/console',
+  '/server-status', '/server', '/v2/',
+  '/login.action', '/backend',
+];
+
+const BLOCKED_PATH_SUFFIXES = ['.php', '.asp', '.aspx', '.jsp', '.cgi'];
+
+// User-agent substrings that indicate scanners/bots
+const BLOCKED_UA_PATTERNS = ['python-requests', 'l9scan', 'zgrab', 'masscan', 'nuclei', 'nikto', 'sqlmap'];
+
+function isBlockedRequest(req) {
+  const ua = req.headers.get('user-agent') || '';
+  if (BLOCKED_UA_PATTERNS.some(p => ua.toLowerCase().includes(p))) return true;
+
+  const pathname = new URL(req.url).pathname.toLowerCase();
+  if (BLOCKED_PATH_PREFIXES.some(p => pathname.startsWith(p))) return true;
+  if (BLOCKED_PATH_SUFFIXES.some(s => pathname.endsWith(s))) return true;
+
+  return false;
+}
+
 const COLS = 100;
 const ROWS = 100;
 const COLORS = ['#ffbe0b', '#fb5607', '#ff006e', '#8338ec', '#3a86ff'];
@@ -48,7 +72,11 @@ serve({
     '/dashboard': dashboard,
     '/stats': () => Response.json(getStats()),
   },
-  fetch(req, server) {
+  async fetch(req, server) {
+    if (isBlockedRequest(req)) {
+      return new Response(null, { status: 404 });
+    }
+
     const url = new URL(req.url);
     if (url.pathname === '/ws') {
       const id = crypto.randomUUID();
@@ -58,7 +86,12 @@ serve({
       if (upgraded) return;
       return new Response('WebSocket upgrade failed', { status: 400 });
     }
-    return new Response(Bun.file(`./public${url.pathname}`));
+
+    const file = Bun.file(`./public${url.pathname}`);
+    if (!(await file.exists())) {
+      return new Response(null, { status: 404 });
+    }
+    return new Response(file);
   },
   websocket: {
     open(ws) {
