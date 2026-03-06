@@ -16,6 +16,7 @@ const CURSOR_COLOR = '#FFFFFF';
 const CURSOR_LINE_WIDTH = 2;
 
 let isDrawing = false;
+let hasPainted = false;
 let ws = null;
 let myId = null;
 const remoteCursors = new Map(); // id -> { color, col, row }
@@ -161,6 +162,7 @@ function toggleDrawing() {
   document.getElementById('draw-button-img').style.filter = isDrawing ? 'brightness(0.5)' : '';
   haptics.trigger(defaultPatterns.success);
   if (isDrawing) {
+    hasPainted = true;
     grid[cursorRow * COLS + cursorCol] = true;
     if (ws && ws.readyState === WebSocket.OPEN)
       ws.send(JSON.stringify({ type: 'paint', col: cursorCol, row: cursorRow }));
@@ -339,7 +341,8 @@ function hideTooltip() {
 function resetInactivityTimer() {
   hideTooltip();
   clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(showTooltip, INACTIVITY_DELAY);
+  if (!hasPainted)
+    inactivityTimer = setTimeout(showTooltip, INACTIVITY_DELAY);
 }
 
 ['pointerdown', 'pointermove', 'keydown'].forEach(evt =>
