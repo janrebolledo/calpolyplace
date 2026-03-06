@@ -313,3 +313,29 @@ canvas.addEventListener('pointermove', (e) => {
 
 canvas.addEventListener('pointerup', () => { isPanning = false; });
 canvas.addEventListener('pointercancel', () => { isPanning = false; });
+
+const tooltip = document.getElementById('tooltip');
+const INACTIVITY_DELAY = 5000;
+let inactivityTimer = null;
+
+function showTooltip() {
+  tooltip.classList.remove('opacity-0');
+  tooltip.classList.add('opacity-100');
+}
+
+function hideTooltip() {
+  tooltip.classList.remove('opacity-100');
+  tooltip.classList.add('opacity-0');
+}
+
+function resetInactivityTimer() {
+  hideTooltip();
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(showTooltip, INACTIVITY_DELAY);
+}
+
+['pointerdown', 'pointermove', 'keydown'].forEach(evt =>
+  document.addEventListener(evt, resetInactivityTimer, { passive: true })
+);
+
+resetInactivityTimer();
