@@ -28,8 +28,8 @@ function isBlockedRequest(req) {
   return false;
 }
 
-const COLS = 100;
-const ROWS = 100;
+const COLS = 250;
+const ROWS = 250;
 const COLORS = ['#ffbe0b', '#fb5607', '#ff006e', '#8338ec', '#3a86ff'];
 
 const grid = new Array(ROWS * COLS).fill(false);
@@ -39,7 +39,7 @@ let colorIndex = 0;
 function nextResetTime() {
   const next = new Date();
   next.setMinutes(0, 0, 0);
-  next.setHours(next.getHours() + 1);
+  next.setHours(Math.ceil((next.getHours() + 1) / 6) * 6);
   return next.getTime();
 }
 

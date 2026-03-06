@@ -6,8 +6,8 @@ import bgSrc from './assets/bg.png';
 
 document.getElementById('canvas-bg').style.backgroundImage = `url(${bgSrc})`;
 
-const COLS = 100;
-const ROWS = 100;
+const COLS = 250;
+const ROWS = 250;
 const VIEWPORT_COLS = 75;
 const VIEWPORT_ROWS = 75;
 const BLOCK_SIZE = 10;
@@ -26,9 +26,10 @@ const countdown = document.getElementById('countdown');
 function updateCountdown() {
   if (!resetAt) return;
   const secs = Math.max(0, Math.round((resetAt - Date.now()) / 1000));
-  const m = String(Math.floor(secs / 60)).padStart(2, '0');
+  const h = String(Math.floor(secs / 3600)).padStart(2, '0');
+  const m = String(Math.floor((secs % 3600) / 60)).padStart(2, '0');
   const s = String(secs % 60).padStart(2, '0');
-  countdown.textContent = `${m}:${s}`;
+  countdown.textContent = `${h}:${m}:${s}`;
 }
 setInterval(updateCountdown, 1000);
 
@@ -40,11 +41,11 @@ canvas.height = VIEWPORT_ROWS * BLOCK_SIZE;
 /** Row-major flat array: grid[row * COLS + col] */
 const grid = new Array(ROWS * COLS).fill(false);
 
-let cursorCol = Math.floor(COLS / 2);
-let cursorRow = Math.floor(ROWS / 2);
+let cursorCol = Math.floor(Math.random() * COLS);
+let cursorRow = Math.floor(Math.random() * ROWS);
 
-let viewportCol = Math.floor((COLS - VIEWPORT_COLS) / 2);
-let viewportRow = Math.floor((ROWS - VIEWPORT_ROWS) / 2);
+let viewportCol = Math.max(0, Math.min(COLS - VIEWPORT_COLS, cursorCol - Math.floor(VIEWPORT_COLS / 2)));
+let viewportRow = Math.max(0, Math.min(ROWS - VIEWPORT_ROWS, cursorRow - Math.floor(VIEWPORT_ROWS / 2)));
 
 /** @type {HTMLImageElement | null} */
 let bgImage = null;
@@ -157,6 +158,7 @@ function toggleDrawing() {
   document.getElementById('draw-label').textContent = isDrawing
     ? 'stop drawing'
     : 'start drawing';
+  document.getElementById('draw-button-img').style.filter = isDrawing ? 'brightness(0.5)' : '';
   haptics.trigger(defaultPatterns.success);
   if (isDrawing) {
     grid[cursorRow * COLS + cursorCol] = true;
@@ -308,10 +310,16 @@ canvas.addEventListener('pointermove', (e) => {
   const rect = canvas.getBoundingClientRect();
   viewportCol = Math.max(0, Math.min(COLS - VIEWPORT_COLS, Math.round(panOriginCol - dx * VIEWPORT_COLS / rect.width)));
   viewportRow = Math.max(0, Math.min(ROWS - VIEWPORT_ROWS, Math.round(panOriginRow - dy * VIEWPORT_ROWS / rect.height)));
+  cursorCol = viewportCol + Math.floor(VIEWPORT_COLS / 2);
+  cursorRow = viewportRow + Math.floor(VIEWPORT_ROWS / 2);
   render();
 });
 
-canvas.addEventListener('pointerup', () => { isPanning = false; });
+canvas.addEventListener('pointerup', () => {
+  if (isPanning && ws && ws.readyState === WebSocket.OPEN)
+    ws.send(JSON.stringify({ type: 'cursor', col: cursorCol, row: cursorRow }));
+  isPanning = false;
+});
 canvas.addEventListener('pointercancel', () => { isPanning = false; });
 
 const tooltip = document.getElementById('tooltip');

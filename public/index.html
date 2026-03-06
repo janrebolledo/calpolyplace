@@ -109,6 +109,8 @@
           <div class="absolute top-2 left-2 right-2 bottom-2 bg-black/50 rounded-3xl flex flex-col items-center justify-center z-10 transition-opacity duration-500 opacity-0 pointer-events-none" id="tooltip">
             <p class="text-white">press <span class="inline-block w-4 h-4"><img src="assets/dpad2.png" class="w-full h-full" /></span> to move around</p>
             <p class="text-white">& <span class="inline-block w-3 h-3"><img src="assets/button2.png" class="w-full h-full" /></span> to toggle drawing</p>
+            <p class="text-white hidden md:block mt-8">or use wasd/arrow keys to move around</p>
+            <p class="text-white hidden md:block">& use space to toggle drawing</p>
           </div>
           <div
             id="canvas-bg"
@@ -171,8 +173,8 @@
           </div>
 
           <div class="my-auto flex flex-col items-center gap-4">
-            <button onclick="toggleDrawing()">
-              <img src="assets/button.png" alt="Button" class="w-10" />
+            <button onclick="toggleDrawing()" id="draw-button">
+              <img src="assets/button.png" alt="Button" class="w-10 transition-[filter] duration-150" id="draw-button-img" />
             </button>
             <p id="draw-label" class="text-white/50">start drawing</p>
           </div>
